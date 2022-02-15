@@ -1,5 +1,6 @@
 package com.point.transaction.domain;
 
+import com.point.transaction.event.TransactionEvent;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,11 @@ import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -31,9 +35,43 @@ public class Point extends AbstractAggregateRoot<Point> {
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "point_idx")
-    private Set<Transaction> transactions = new HashSet<>();
+    private List<Transaction> transactions = new ArrayList<>();
+
+    public boolean isRedeemable(final long amount) {
+        return this.amount >= amount;
+    }
+
+    public Transaction accumulate(final long amount) {
+        Transaction accumulation = Transaction.accumulate(amount);
+        this.transactions.add(accumulation);
+        registerEvent(new TransactionEvent(userIdx, accumulation));
+        return accumulation;
+    }
+
+    public Transaction redeem(final long amount) {
+        List<Transaction> accumulations = transactions.stream()
+                .filter(Transaction::isAccumulation)
+                .filter(Transaction::hasBalance)
+                .sorted(Comparator.comparing(Transaction::getExpireDate))
+                .collect(Collectors.toList());
+
+        AtomicLong leftDeductionAmount = new AtomicLong(amount);
+        Transaction redemption = Transaction.redeem();
+        accumulations.forEach(accumulation -> {
+            if(leftDeductionAmount.get() <= 0) {
+                return;
+            }
+            TransactionDetail deduction = accumulation.deduct(leftDeductionAmount.get());
+            leftDeductionAmount.addAndGet(deduction.getSignedAmount());
+            redemption.mapping(deduction);
+        });
+
+        this.transactions.add(redemption.reflectDeduction(amount));
+        registerEvent(new TransactionEvent(userIdx, redemption));
+        return redemption;
+    }
 
     public static Point of(final long userIdx) {
         return Point.builder()
@@ -42,15 +80,20 @@ public class Point extends AbstractAggregateRoot<Point> {
                 .build();
     }
 
-    public Transaction accumulate(final long amount) {
-        Transaction accumulation = Transaction.accumulate(amount);
-        this.transactions.add(accumulation);
-        return accumulation;
-    }
-
     @Builder
     private Point(final Long userIdx, final long amount) {
         this.userIdx = userIdx;
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "idx=" + idx +
+                ", userIdx=" + userIdx +
+                ", amount=" + amount +
+                ", createDate=" + createDate +
+                ", updateDate=" + updateDate +
+                '}';
     }
 }

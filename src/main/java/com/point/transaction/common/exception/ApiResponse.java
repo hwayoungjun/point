@@ -24,6 +24,13 @@ public class ApiResponse<T> {
                 .build();
     }
 
+    public static ApiResponse from(BusinessException exception) {
+        return ApiResponse.builder()
+                .code(exception.getCode())
+                .message(exception.getMessage())
+                .build();
+    }
+
     @Builder
     private ApiResponse(final int code, final String message, final T data) {
         this.code = code;

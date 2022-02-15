@@ -1,5 +1,6 @@
 package com.point.transaction.ui;
 
+import com.point.transaction.common.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
