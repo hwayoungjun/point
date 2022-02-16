@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  point-api:
+    container_name: ${APP_NAME_API}
+    image: point-api/latest
+    ports:
+      - "8080:8080"
+  redis:
+    image: redis:alpine
+    command: redis-server --port 6379
+    container_name: point-redis
+    hostname: point-redis
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    ports:
+      - "6379:6379"
