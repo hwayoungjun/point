@@ -1,7 +1,0 @@
-server:
-  servlet:
-    context-path: /point
-
-spring:
-  profiles:
-    active: local
