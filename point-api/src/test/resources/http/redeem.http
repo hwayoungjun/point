@@ -1,0 +1,7 @@
+POST http://localhost:8080/point/api/redeem
+Content-Type: application/json
+
+{
+  "userIdx": 1,
+  "amount": 100
+}
