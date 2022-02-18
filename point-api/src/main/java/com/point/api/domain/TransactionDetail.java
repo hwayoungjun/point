@@ -1,5 +1,6 @@
 package com.point.api.domain;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "point_transaction_detail")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TransactionDetail {
 
     @Id

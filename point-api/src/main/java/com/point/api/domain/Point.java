@@ -1,6 +1,7 @@
 package com.point.api.domain;
 
 import com.point.api.event.TransactionEvent;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Point extends AbstractAggregateRoot<Point> {
 
     @Id

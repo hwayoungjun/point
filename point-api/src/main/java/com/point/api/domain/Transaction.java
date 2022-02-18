@@ -1,5 +1,6 @@
 package com.point.api.domain;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.Set;
 @Entity
 @Table(name = "point_transaction")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Transaction {
 
     @Id
