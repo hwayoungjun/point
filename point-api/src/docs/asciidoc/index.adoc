@@ -1,0 +1,11 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+== REQUEST
+
+include::{snippets}/point/api/accumulate/http-request.adoc[]
+
+== RESPONSE
+
+include::{snippets}/point/api/accumulate/http-response.adoc[]
