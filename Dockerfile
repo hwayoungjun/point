@@ -1,4 +1,5 @@
 FROM openjdk:11
+LABEL maintainer "HwayoungJun <jun9813@gmail.com>"
 
 RUN mkdir -p /var/www/point-api
 WORKDIR /var/www/point-api
