@@ -1,21 +1,24 @@
 package com.point.api.infra;
 
-import com.point.api.domain.PointBalanceStore;
-import com.point.api.ui.response.PointResponse;
+import com.point.api.domain.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
 
 @Slf4j
 @RequiredArgsConstructor
 public class DefaultPointBalanceStore implements PointBalanceStore {
 
-    @Qualifier("pointBalanceRedisTemplate")
-    private final RedisTemplate redisTemplate;
+    private final PointBalanceRepository pointBalanceRepository;
+    private final PointRepository pointRepository;
 
     @Override
-    public PointResponse getBalance(long userIdx) {
-        return (PointResponse) redisTemplate.opsForValue().get(userIdx);
+    public PointBalance getBalance(long userIdx) {
+        return pointBalanceRepository.findByUserIdx(userIdx).orElseGet(() -> {
+            Point point = pointRepository.findByUserIdx(userIdx).orElseGet(() -> {
+                //todo publish init-balance event
+                return Point.of(userIdx);
+            });
+            return PointBalance.from(point);
+        });
     }
 }
