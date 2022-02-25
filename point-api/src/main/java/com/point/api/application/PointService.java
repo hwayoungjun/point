@@ -2,9 +2,7 @@ package com.point.api.application;
 
 import com.point.api.common.exception.BusinessException;
 import com.point.api.common.exception.ExceptionCode;
-import com.point.api.domain.PointRepository;
-import com.point.api.domain.Point;
-import com.point.api.domain.Transaction;
+import com.point.api.domain.*;
 import com.point.api.ui.request.AccumulationRequest;
 import com.point.api.ui.request.RedeemRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PointService {
 
     private final PointRepository pointRepository;
+    private final PointBalanceStore pointBalanceStore;
+
+    public PointBalance getBalance(long userIdx) {
+        return pointBalanceStore.getBalance(userIdx);
+    }
 
     public Transaction accumulate(AccumulationRequest request) {
         long userIdx = request.getUserIdx();
